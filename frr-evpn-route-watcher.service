@@ -1,0 +1,7 @@
+[Unit]
+Description=Syncronizes the routes to various VRFs
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/frr-evpn-route-watcher/task.py
+User=root

@@ -1,0 +1,11 @@
+-s dir
+--name frr-evpn-route-watcher
+--architecture all
+--depends python3
+--description "Reads the frr evpn routes and syncronizes the linux routes"
+--url "https://github.com/MatthieuCoder/frr-evpn-route-watcher"
+--maintainer "Matthieu Pignolet <m@mpgn.dev>"
+
+frr-evpn-route-watcher/=/usr/lib/frr-evpn-route-watcher/
+frr-evpn-route-watcher.service=/etc/systemd/system/frr-evpn-route-watcher.service
+frr-evpn-route-watcher.timer=/etc/systemd/system/frr-evpn-route-watcher.timer

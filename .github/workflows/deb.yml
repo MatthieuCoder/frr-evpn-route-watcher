@@ -1,0 +1,23 @@
+name: Release
+
+on:
+  push:
+    tags:        
+      - '*' 
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.3' # Not needed with a .ruby-version file
+        bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - run: gem install fpm
+    - run: ./build.sh
+    - uses: actions/upload-artifact@v4
+      with:
+        name: deb
+        path: |
+          *.deb

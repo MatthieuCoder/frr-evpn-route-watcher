@@ -1,8 +1,8 @@
+#!/usr/bin/env python3
 import json
 import ipaddress
 import subprocess
 import re
-import time
 
 def get_frr_vrfs():
     """Gets the list of vrf VNIs configured in FRR"""

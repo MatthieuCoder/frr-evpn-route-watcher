@@ -12,7 +12,7 @@ def get_frr_vrfs():
 def get_frr_evpn_info():
     """Lists all the routes learned via evpn"""
     process = subprocess.run(
-        ["vtysh", "-c", "show ip bgp l2vpn evpn json"], capture_output=True
+        ["vtysh", "-c", "show bgp l2vpn evpn json"], capture_output=True
     )
     return json.loads(process.stdout)
 
@@ -26,9 +26,11 @@ def remove_route_vrf(ip):
     subprocess.run(["ip", "route", "del", str(ip)])
 
 def currently_routed(vrfs_names):
-    process = subprocess.run(["ip", "route"], capture_output=True, text=True)
+    processfour = subprocess.run(["ip", "route"], capture_output=True, text=True).stdout.splitlines()
+    processsixe = subprocess.run(["ip", "-6", "route"], capture_output=True, text=True).stdout.splitlines()
+    processresults = processfour + processsixe
     routed_ips = []
-    for route in process.stdout.splitlines():
+    for route in processresults:
         parts = route.split(" ")
         if len(parts) == 6:
             addr, dev, vrf, scope, link = (

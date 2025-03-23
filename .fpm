@@ -5,6 +5,7 @@
 --description "Reads the frr evpn routes and syncronizes the linux routes"
 --url "https://github.com/MatthieuCoder/frr-evpn-route-watcher"
 --maintainer "Matthieu Pignolet <m@mpgn.dev>"
+--after-install postinstall.sh
 
 frr-evpn-route-watcher/=/usr/lib/frr-evpn-route-watcher/
 frr-evpn-route-watcher.service=/etc/systemd/system/frr-evpn-route-watcher.service

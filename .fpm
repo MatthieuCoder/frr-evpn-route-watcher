@@ -10,3 +10,4 @@
 frr-evpn-route-watcher/=/usr/lib/frr-evpn-route-watcher/
 frr-evpn-route-watcher.service=/etc/systemd/system/frr-evpn-route-watcher.service
 frr-evpn-route-watcher.timer=/etc/systemd/system/frr-evpn-route-watcher.timer
+frr-evpn-route-watcher.conf=/etc/iproute2/rt_protos.d/frr-evpn-route-watcher.conf

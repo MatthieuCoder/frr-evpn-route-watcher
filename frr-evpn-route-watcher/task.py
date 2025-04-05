@@ -9,7 +9,7 @@ def vtysh(cmd):
         "vtysh",
         "-c",
         cmd
-    ], capture_output=True).stdout
+    ], capture_output=True, text=True).stdout
 
 def get_frr_vrfs():
     """
@@ -32,21 +32,22 @@ def get_current_routes():
     gets the list of routes currently applied using frr-evpn-route-watcher
     """
     command = [
-        "ip",
         "route",
         "show",
         "proto",
         "frr-evpn-route-watcher"
     ]
-    process4 = subprocess.run(command, capture_output=True)
-    process6 = subprocess.run(command + ["-6"], capture_output=True)
+    process4 = subprocess.run(["ip"] + command, capture_output=True, text=True)
+    process6 = subprocess.run(["ip", "-6"] + command, capture_output=True, text=True)
 
     routes = process4.stdout.splitlines() + process6.stdout.splitlines()
+    
+    print(f"@: Routes found {routes}")
     out = {}
 
     for route in routes:
         # <ip> dev <vrf> scope link
-        parts = route.split(" ")
+        parts = route.strip().split(" ")
         if len(parts) == 5:
             valid = parts[1] == "dev" \
                 and parts[3] == "scope" \
@@ -57,6 +58,18 @@ def get_current_routes():
                 ip = ipaddress.ip_address(ipraw)
                 out[ip] = vrf
                 print(f"D: Found existing route for {ip}")
+        # <ip> dev <vrf> metric <metric> pref <medium>
+        elif len(parts) == 7:
+            valid = parts[1] == "dev" \
+                and parts[3] == "metric" \
+                and parts[5] == "pref"
+            if valid:
+                ipraw = parts[0]
+                vrf = parts[2]
+                ip = ipaddress.ip_address(ipraw)
+                out[ip] = vrf
+                print(f"D: Found existing route for {ip}")
+                
     return out
 
 def add_route_vrf(ip, vrf):
@@ -85,7 +98,7 @@ def main():
     # Get all the L2 VRFs
     vrfs = [
         vrf 
-        for vrf in get_frr_vrfs()
+        for vrf in get_frr_vrfs().values()
         if vrf['type'] == "L2"
     ]
     # get all the current routes
@@ -97,12 +110,17 @@ def main():
         arp_cache = get_frr_arp_cache(vni)
 
         for entry in arp_cache.keys():
-            local = type({}) == type(arp_cache[entry]) and \
-                arp_cache[entry]['type'] == 'local'
+            if not type({}) == type(arp_cache[entry]):
+                continue
             
-            if local:
-                ip = ipaddress.ip_address(entry)
-                present = ip in to_remove
+            ip = ipaddress.ip_address(entry)
+            should_route = arp_cache[entry]['type'] == 'local' and \
+                not ip.is_link_local and \
+                not ip.is_loopback and \
+                not ip.is_multicast
+            
+            if should_route:
+                present = ip in to_remove.keys()
 
                 # if the route already exists
                 if present:
@@ -114,13 +132,17 @@ def main():
                     if not valid:
                         remove_route_vrf(ip)
                         add_route_vrf(ip, vrfName)
+                    else:
+                        print(f"@: Route to {ip} is already compliant")
                 else:
                     # if the route doesn't exist, we simply create it
                     add_route_vrf(ip, vrfName)
                 
-                # since the route muse say we remove it from the to_remove list
-                to_remove.pop(ip)
+                if present:
+                    # since the route muse say we remove it from the to_remove list
+                    to_remove.pop(ip)
     
+    print(f"@: {len(to_remove)} routes need to be removed")
     for remove in to_remove.keys():
         remove_route_vrf(remove)
 

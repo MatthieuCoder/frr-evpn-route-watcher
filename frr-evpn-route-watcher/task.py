@@ -4,7 +4,7 @@ import ipaddress
 import subprocess
 
 def vtysh(cmd):
-    print(f"@: vtysh -c {cmd}")
+    print(f"D: vtysh -c {cmd}")
     return subprocess.run([
         "vtysh",
         "-c",
@@ -42,7 +42,7 @@ def get_current_routes():
 
     routes = process4.stdout.splitlines() + process6.stdout.splitlines()
     
-    print(f"@: Routes found {routes}")
+    print(f"D: Routes found {routes}")
     out = {}
 
     for route in routes:
@@ -133,7 +133,7 @@ def main():
                         remove_route_vrf(ip)
                         add_route_vrf(ip, vrfName)
                     else:
-                        print(f"@: Route to {ip} is already compliant")
+                        print(f"D: Route to {ip} is already compliant")
                 else:
                     # if the route doesn't exist, we simply create it
                     add_route_vrf(ip, vrfName)
@@ -142,7 +142,7 @@ def main():
                     # since the route muse say we remove it from the to_remove list
                     to_remove.pop(ip)
     
-    print(f"@: {len(to_remove)} routes need to be removed")
+    print(f"D: {len(to_remove)} routes need to be removed")
     for remove in to_remove.keys():
         remove_route_vrf(remove)
 

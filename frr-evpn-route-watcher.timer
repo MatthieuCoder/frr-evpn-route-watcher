@@ -1,8 +1,8 @@
 [Unit]
-Description=Execute the frr evpn route watcher every minute
+Description=Execute the frr evpn route watcher every 10 seconds
 
 [Timer]
-OnCalendar=*-*-* *:*:00
+OnCalendar=*:*:0/10
 Unit=frr-evpn-route-watcher.service
 
 [Install]
